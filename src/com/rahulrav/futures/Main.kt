@@ -17,5 +17,5 @@ fun main(args: Array<String>) {
   val joined: Future<List<Int>> = Future.join(additive, multiplicative)
   val result: List<Int>? = joined.await(executor, 2000)
   println("The result is $result")
-  executor.shutdown();
+  executor.shutdown()
 }
