@@ -23,7 +23,7 @@ This future supports combinators like `map` and `flatMap` so you can transform a
 
 ```kotlin
 val response: Future<HttpResponse> = someLongRunningComputation()
-val headers: Future<Lisst<Pair<String, String>>> = response.map { result ->
+val headers: Future<List<Pair<String, String>>> = response.map { result ->
   return result.headers
 }
 ```
