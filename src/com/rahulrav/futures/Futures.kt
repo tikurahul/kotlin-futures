@@ -8,7 +8,7 @@ import java.util.concurrent.Executor
 /**
  * A really simple implementation of a Future.
  */
-class Future<R> {
+public class Future<R> {
 
   private var ready: Boolean = false
   private var result: R? = null
