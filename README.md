@@ -14,7 +14,7 @@ val executor: Executor = Executors.newFixedThreadPool(10)
 val future: Future<Int> = Future.submit(executor, Callable<Int> {
   Thread.sleep(10)
   10
-});
+})
 ```
 
 ### Support for combinators
