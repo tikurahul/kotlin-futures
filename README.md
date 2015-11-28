@@ -33,9 +33,9 @@ To flatten results of asynchronous computations use `flatMap`.
 ```kotlin
   val first: Future<Int> = someLongRunningComputation();
   val result: Future<Double> = first.flatMap { result ->
-  val second: Future<Double> = anotherLongRunningComputation(result)
-  // we are returning a Future<Double> instead of a Future<Future<Double>>
-  return second
+    val second: Future<Double> = anotherLongRunningComputation(result)
+    // we are returning a Future<Double> instead of a Future<Future<Double>>
+    return second
   }
 ```
 
