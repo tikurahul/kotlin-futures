@@ -7,13 +7,13 @@ Has very minimal dependencies, so you can use it on Android.
 
 Creating a `Future` is really easy.
 
-```
+```kotlin
 import com.rahulrav.futures.Future
 
 val executor: Executor = Executors.newFixedThreadPool(10)
 val future: Future<Int> = Future.submit(executor, Callable<Int> {
-  Thread.sleep(10);
-  10;
+  Thread.sleep(10)
+  10
 });
 ```
 
@@ -21,19 +21,19 @@ val future: Future<Int> = Future.submit(executor, Callable<Int> {
 
 This future supports combinators like `map` and `flatMap` so you can transform and flatten `Future`'s.
 
-```
+```kotlin
 val response: Future<HttpResponse> = someLongRunningComputation()
-val headers: Future<Pair<String, String>> = response.map { result =>
+val headers: Future<Lisst<Pair<String, String>>> = response.map { result ->
   return result.headers
 }
 ```
 
 To flatten results of asynchronous computations use `flatMap`.
 
-```
+```kotlin
   val first: Future<Int> = someLongRunningComputation();
-  val result: Future<Double> = first.flatMap { result =>
-    val second: Future<Double> = anotherLongRunningComputation(result);
+  val result: Future<Double> = first.flatMap { result ->
+    val second: Future<Double> = anotherLongRunningComputation(result)
 	// we are returning a Future<Double> instead of a Future<Future<Double>>
     return second
   }
