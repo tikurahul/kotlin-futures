@@ -11,7 +11,7 @@ Creating a `Future` is really easy.
 import com.rahulrav.futures.Future
 
 val executor: Executor = Executors.newFixedThreadPool(10)
-val future: Future<Int> = Future.submit(executor, Callable<Int> {
+val future: Future<Int> = Future.submit(executor, {
   Thread.sleep(10)
   10
 })

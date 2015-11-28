@@ -1,7 +1,6 @@
 package com.rahulrav.futures
 
-import java.util.LinkedList
-import java.util.concurrent.Callable
+import java.util.ArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 
@@ -10,12 +9,12 @@ import java.util.concurrent.Executor
  */
 public class Future<R> {
 
-  private var ready: Boolean = false
-  private var result: R? = null
-  private var error: Exception? = null
+  var ready: Boolean = false
+  var result: R? = null
+  var error: Exception? = null
 
-  private var callbacks: List<Pair<(R) -> Unit, Boolean>> = LinkedList()
-  private var errorBacks: List<Pair<(Exception) -> Unit, Boolean>> = LinkedList()
+  private val callbacks: ArrayList<Pair<(R) -> Unit, Boolean>> = ArrayList()
+  private val errorBacks: ArrayList<Pair<(Exception) -> Unit, Boolean>> = ArrayList()
 
   /**
    * Creates a {@link Future} with an unresolved state.
@@ -47,8 +46,7 @@ public class Future<R> {
   }
 
   private fun onFulfilled() {
-    val postCallbacks = LinkedList<Pair<(R) -> Unit, Boolean>>()
-    callbacks.forEach { pair ->
+    callbacks.forEachIndexed { i, pair ->
       val block = pair.first
       var executed = false
       // only execute blocks that have not been executed before
@@ -62,14 +60,12 @@ public class Future<R> {
         }
       }
       val newPair = Pair(block, executed)
-      postCallbacks += newPair
+      callbacks.set(i, newPair)
     }
-    callbacks = postCallbacks
   }
 
   private fun onRejected() {
-    val postErrorBacks = LinkedList<Pair<(Exception) -> Unit, Boolean>>()
-    errorBacks.forEach { pair ->
+    errorBacks.forEachIndexed { i, pair ->
       val block = pair.first
       var executed = false
       // only execute blocks that have not been executed before
@@ -84,16 +80,15 @@ public class Future<R> {
         }
       }
       val newPair = Pair(block, executed)
-      postErrorBacks += newPair
+      errorBacks.set(i, newPair)
     }
-    errorBacks = postErrorBacks
   }
 
   /**
    * Adds a callback that will be executed on the successful completion of the {@link Future}.
    */
   public fun onSuccess(block: (R) -> Unit) {
-    callbacks += Pair(block, false)
+    callbacks.add(Pair(block, false))
     onFulfilled()
   }
 
@@ -101,7 +96,7 @@ public class Future<R> {
    * Adds an error back which will be executed when the {@link Future} is marked as a failure.
    */
   public fun onError(block: (Exception) -> Unit) {
-    errorBacks += Pair(block, false)
+    errorBacks.add(Pair(block, false))
     onRejected()
   }
 
@@ -198,7 +193,7 @@ public class Future<R> {
      */
     public fun <R> join(vararg f: Future<R>): Future<List<R>> {
       var joined = Future<List<R>>()
-      var results = LinkedList<R>()
+      var results = ArrayList<R>(f.size)
       val size = f.size
       val successCallback = { result: R ->
         results.add(result)
@@ -221,11 +216,11 @@ public class Future<R> {
     /**
      * Submits a {@link Callable} to a {@link Executor} to produce a Future.
      */
-    public fun <R> submit(executor: Executor, callable: Callable<R>): Future<R> {
+    public fun <R> submit(executor: Executor, block: () -> R): Future<R> {
       val future = Future<R>()
       executor.execute {
         try {
-          val result = callable.call()
+          val result = block.invoke()
           future.resolve(result)
         } catch (exception: Exception) {
           future.reject(exception)

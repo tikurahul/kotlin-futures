@@ -1,6 +1,5 @@
 package com.rahulrav.futures
 
-import java.util.concurrent.Callable
 import java.util.concurrent.Executors
 
 /**
@@ -8,7 +7,7 @@ import java.util.concurrent.Executors
  */
 fun main(args: Array<String>) {
   val executor = Executors.newFixedThreadPool(10)
-  val future = Future.submit(executor, Callable<Int> {
+  val future = Future.submit(executor, {
     Thread.sleep(1000)
     10
   })
