@@ -11,9 +11,9 @@ import java.util.concurrent.locks.ReentrantLock
  */
 public class Future<R> {
 
-  var ready: Boolean = false
-  var result: R? = null
-  var error: Exception? = null
+  @Volatile var ready: Boolean = false
+  @Volatile var result: R? = null
+  @Volatile var error: Exception? = null
 
   private var executor: Executor? = null
   private val callbacks: ArrayList<Pair<(R) -> Unit, Boolean>> = ArrayList()
