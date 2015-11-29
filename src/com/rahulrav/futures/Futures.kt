@@ -125,7 +125,7 @@ public class Future<R> {
   /**
    * Marks the successful completion of the {@link Future}.
    */
-  public fun resolve(result: R) = complete(result, null, executor!!)
+  public fun resolve(result: R) = resolve(result, executor!!)
 
   /**
    * Marks the successful completion of the {@link Future} on the given {@link Executor}.
@@ -135,7 +135,7 @@ public class Future<R> {
   /**
    * Marks the result of the {@link Future} as a failure.
    */
-  public fun reject(error: Exception) = complete(null, error, executor!!)
+  public fun reject(error: Exception) = reject(error, executor!!)
 
   /**
    * Marks the result of the {@link Future} as a failure on the given {@link Executor}.
