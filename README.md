@@ -3,6 +3,9 @@
 A simple implementation of Futures in Kotlin.
 Has very minimal dependencies, so you can use it on Android.
 
+This is a work in progress. The API surface is small, so a lot of tweaks 
+are still being made to the API and the implementation. Pull requests welcome.
+
 ### Getting Started
 
 Creating a `Future` is really easy.
