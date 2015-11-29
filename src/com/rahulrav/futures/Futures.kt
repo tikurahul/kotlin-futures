@@ -3,6 +3,8 @@ package com.rahulrav.futures
 import java.util.ArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * A really simple implementation of a Future.
@@ -12,30 +14,34 @@ public class Future<R> {
   var ready: Boolean = false
   var result: R? = null
   var error: Exception? = null
+  var executor: Executor? = null
 
   private val callbacks: ArrayList<Pair<(R) -> Unit, Boolean>> = ArrayList()
   private val errorBacks: ArrayList<Pair<(Exception) -> Unit, Boolean>> = ArrayList()
+  private val lock: ReentrantLock = ReentrantLock()
+
 
   /**
    * Creates a {@link Future} with an unresolved state.
    */
-  constructor() : this(null, null)
+  constructor(executor: Executor) : this(null, null, executor)
 
   /**
    * Creates a {@link Future} with a successful resolved state.
    */
-  constructor(result: R) : this(result, null)
+  constructor(executor: Executor, result: R) : this(result, null, executor)
 
   /**
    * Creates a {@link Future} with a failed resolved state.
    */
-  constructor(error: Exception) : this(null, error)
+  constructor(executor: Executor, error: Exception) : this(null, error, executor)
 
-  private constructor(result: R?, error: Exception?) {
-    init(result, error)
+  private constructor(result: R?, error: Exception?, executor: Executor) {
+    init(result, error, executor)
   }
 
-  private fun init(result: R?, error: Exception ?) {
+  private fun init(result: R?, error: Exception?, executor: Executor) {
+    this.executor = executor
     if (result != null) {
       this.result = result
       ready = true
@@ -46,41 +52,57 @@ public class Future<R> {
   }
 
   private fun onFulfilled() {
-    callbacks.forEachIndexed { i, pair ->
-      val block = pair.first
-      var executed = false
-      // only execute blocks that have not been executed before
-      if (!pair.second) {
-        try {
-          if (ready) {
-            block.invoke(result!!)
-            executed = true
+    try {
+      if (lock.tryLock(LOCK_TIMEOUT, TimeUnit.MILLISECONDS)) {
+        callbacks.forEachIndexed { i, pair ->
+          val block = pair.first
+          var submitted = false
+          // only submit blocks that have not been executed before
+          if (!pair.second) {
+            try {
+              if (ready) {
+                executor?.execute {
+                  block.invoke(result!!)
+                }
+                submitted = true
+              }
+            } catch (ignore: Exception) {
+            }
           }
-        } catch (ignore: Exception) {
+          val newPair = Pair(block, submitted)
+          callbacks.set(i, newPair)
         }
       }
-      val newPair = Pair(block, executed)
-      callbacks.set(i, newPair)
+    } finally {
+      lock.unlock()
     }
   }
 
   private fun onRejected() {
-    errorBacks.forEachIndexed { i, pair ->
-      val block = pair.first
-      var executed = false
-      // only execute blocks that have not been executed before
-      if (!pair.second) {
-        try {
-          if (ready) {
-            block.invoke(error!!)
-            executed = true
-          }
-        } catch (ignore: Exception) {
+    try {
+      if (lock.tryLock(LOCK_TIMEOUT, TimeUnit.MILLISECONDS)) {
+        errorBacks.forEachIndexed { i, pair ->
+          val block = pair.first
+          var submitted = false
+          // only submit blocks that have not been executed before
+          if (!pair.second) {
+            try {
+              if (ready) {
+                executor?.execute {
+                  block.invoke(error!!)
+                }
+                submitted = true
+              }
+            } catch (ignore: Exception) {
 
+            }
+          }
+          val newPair = Pair(block, submitted)
+          errorBacks.set(i, newPair)
         }
       }
-      val newPair = Pair(block, executed)
-      errorBacks.set(i, newPair)
+    } finally {
+      lock.unlock()
     }
   }
 
@@ -111,7 +133,7 @@ public class Future<R> {
   public fun reject(error: Exception) = complete(null, error)
 
   private fun complete(result: R?, error: Exception?) {
-    init(result, error)
+    init(result, error, executor!!)
     if (result != null) {
       onFulfilled()
     } else if (error != null) {
@@ -123,7 +145,14 @@ public class Future<R> {
    * Helps with transformations on {@link Future}'s.
    */
   public fun <U> map(block: (R) -> U): Future<U> {
-    val future: Future<U> = Future()
+    return map(executor!!, block)
+  }
+
+  /**
+   * Helps with transformations on {@link Future}'s.
+   */
+  public fun <U> map(executor: Executor, block: (R) -> U): Future<U> {
+    val future: Future<U> = Future(executor)
     this.onSuccess { r: R ->
       try {
         future.resolve(block.invoke(r))
@@ -141,7 +170,14 @@ public class Future<R> {
    * Helps in chaining asynchronous computations with {@link Future}'s.
    */
   public fun <U> flatMap(block: (R) -> Future<U>): Future<U> {
-    val future: Future<U> = Future()
+    return flatMap(executor!!, block)
+  }
+
+  /**
+   * Helps in chaining asynchronous computations with {@link Future}'s.
+   */
+  public fun <U> flatMap(executor: Executor, block: (R) -> Future<U>): Future<U> {
+    val future: Future<U> = Future(executor)
     this.onSuccess { r ->
       try {
         val futureU = block.invoke(r)
@@ -188,11 +224,14 @@ public class Future<R> {
 
   companion object {
 
+    /** The default time out for lock. */
+    private val LOCK_TIMEOUT: Long = 1000
+
     /**
      * Returns a composite Future, based on a variable list of Futures.
      */
-    public fun <R> join(vararg f: Future<R>): Future<List<R>> {
-      var joined = Future<List<R>>()
+    public fun <R> join(executor: Executor, vararg f: Future<R>): Future<List<R>> {
+      var joined = Future<List<R>>(executor)
       var results = ArrayList<R>(f.size)
       val size = f.size
       val successCallback = { result: R ->
@@ -217,7 +256,7 @@ public class Future<R> {
      * Submits a {@link Callable} to a {@link Executor} to produce a Future.
      */
     public fun <R> submit(executor: Executor, block: () -> R): Future<R> {
-      val future = Future<R>()
+      val future = Future<R>(executor)
       executor.execute {
         try {
           val result = block.invoke()
@@ -233,7 +272,7 @@ public class Future<R> {
      * Convenience methods to produce a {@link Future} that resolves after the given timeout.
      */
     public fun timeOut(executor: Executor, timeout: Long): Future<Unit> {
-      val future = Future<Unit>()
+      val future = Future<Unit>(executor)
       executor.execute {
         try {
           Thread.sleep(timeout)
