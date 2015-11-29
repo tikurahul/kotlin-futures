@@ -14,8 +14,8 @@ public class Future<R> {
   var ready: Boolean = false
   var result: R? = null
   var error: Exception? = null
-  var executor: Executor? = null
 
+  private var executor: Executor? = null
   private val callbacks: ArrayList<Pair<(R) -> Unit, Boolean>> = ArrayList()
   private val errorBacks: ArrayList<Pair<(Exception) -> Unit, Boolean>> = ArrayList()
   private val lock: ReentrantLock = ReentrantLock()
