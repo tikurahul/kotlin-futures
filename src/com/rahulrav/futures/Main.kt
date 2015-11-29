@@ -11,11 +11,11 @@ fun main(args: Array<String>) {
     Thread.sleep(1000)
     10
   })
-  
+
   val additive: Future<Int> = future.map { it.plus(10) }
   val multiplicative: Future<Int> = future.flatMap { Future(executor, it * 100) }
   val joined: Future<List<Int>> = Future.join(executor, additive, multiplicative)
-  val result: List<Int>? = joined.await(executor, 2000)
+  val result: List<Int>? = joined.await(2000)
   println("The result is $result")
   executor.shutdown()
 }

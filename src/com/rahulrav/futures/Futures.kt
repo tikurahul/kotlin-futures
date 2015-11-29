@@ -125,15 +125,25 @@ public class Future<R> {
   /**
    * Marks the successful completion of the {@link Future}.
    */
-  public fun resolve(result: R) = complete(result, null)
+  public fun resolve(result: R) = complete(result, null, executor!!)
+
+  /**
+   * Marks the successful completion of the {@link Future} on the given {@link Executor}.
+   */
+  public fun resolve(result: R, executor: Executor) = complete(result, null, executor)
 
   /**
    * Marks the result of the {@link Future} as a failure.
    */
-  public fun reject(error: Exception) = complete(null, error)
+  public fun reject(error: Exception) = complete(null, error, executor!!)
 
-  private fun complete(result: R?, error: Exception?) {
-    init(result, error, executor!!)
+  /**
+   * Marks the result of the {@link Future} as a failure on the given {@link Executor}.
+   */
+  public fun reject(error: Exception, executor: Executor) = complete(null, error, executor)
+
+  private fun complete(result: R?, error: Exception?, executor: Executor) {
+    init(result, error, executor)
     if (result != null) {
       onFulfilled()
     } else if (error != null) {
@@ -197,7 +207,7 @@ public class Future<R> {
   /**
    * Waits to the future to resolve, and returns the result if available.
    */
-  public fun await(executor: Executor, timeout: Long): R? {
+  public fun await(timeout: Long): R? {
     if (ready) {
       if (result != null) {
         return result
@@ -207,7 +217,7 @@ public class Future<R> {
     }
     // wait for results
     val latch = CountDownLatch(1)
-    val future = Future.timeOut(executor, timeout)
+    val future = Future.timeOut(executor!!, timeout)
     future.onSuccess {
       latch.countDown()
     }
