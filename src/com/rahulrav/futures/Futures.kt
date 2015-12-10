@@ -60,7 +60,7 @@ public class Future<R> {
           // only submit blocks that have not been executed before
           if (!pair.second) {
             try {
-              if (ready) {
+              if (ready && result != null) {
                 executor?.execute {
                   block.invoke(result!!)
                 }
@@ -70,7 +70,7 @@ public class Future<R> {
             }
           }
           val newPair = Pair(block, submitted)
-          callbacks.set(i, newPair)
+          callbacks[i] = newPair
         }
       }
     } finally {
@@ -87,7 +87,7 @@ public class Future<R> {
           // only submit blocks that have not been executed before
           if (!pair.second) {
             try {
-              if (ready) {
+              if (ready && error != null) {
                 executor?.execute {
                   block.invoke(error!!)
                 }
@@ -98,7 +98,7 @@ public class Future<R> {
             }
           }
           val newPair = Pair(block, submitted)
-          errorBacks.set(i, newPair)
+          errorBacks[i] = newPair
         }
       }
     } finally {
@@ -165,13 +165,19 @@ public class Future<R> {
     val future: Future<U> = Future(executor)
     this.onSuccess { r: R ->
       try {
-        future.resolve(block.invoke(r))
+        executor.execute {
+          future.resolve(block.invoke(r))
+        }
       } catch (exception: Exception) {
-        future.reject(exception)
+        executor.execute {
+          future.reject(exception)
+        }
       }
     }
     this.onError { error ->
-      future.reject(error)
+      executor.execute {
+        future.reject(error)
+      }
     }
     return future
   }
@@ -190,16 +196,22 @@ public class Future<R> {
     val future: Future<U> = Future(executor)
     this.onSuccess { r ->
       try {
-        val futureU = block.invoke(r)
-        futureU.onSuccess { u ->
-          future.resolve(u)
+        executor.execute {
+          val futureU = block.invoke(r)
+          futureU.onSuccess { u ->
+            future.resolve(u)
+          }
         }
       } catch (exception: Exception) {
-        future.reject(exception)
+        executor.execute {
+          future.reject(exception)
+        }
       }
     }
     this.onError { exception ->
-      future.reject(exception)
+      executor.execute {
+        future.reject(exception)
+      }
     }
     return future
   }
