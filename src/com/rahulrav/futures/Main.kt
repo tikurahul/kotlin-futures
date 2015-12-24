@@ -15,6 +15,9 @@ fun main(args: Array<String>) {
   val additive: Future<Int> = future.map { it.plus(10) }
   val multiplicative: Future<Int> = future.flatMap { Future(executor, it * 100) }
   val joined: Future<List<Int>> = Future.join(executor, additive, multiplicative)
+  joined.always { list, exception ->
+    println("Always $list, $exception")
+  }
   val result: List<Int>? = joined.await(2000)
   println("The result is $result")
   executor.shutdown()

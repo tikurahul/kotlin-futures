@@ -3,8 +3,8 @@ package com.rahulrav.futures
 import java.util.ArrayList
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * A really simple implementation of a Future.
@@ -18,8 +18,8 @@ public class Future<R> {
   private var executor: Executor? = null
   private val callbacks: ArrayList<Pair<(R) -> Unit, Boolean>> = ArrayList()
   private val errorBacks: ArrayList<Pair<(Exception) -> Unit, Boolean>> = ArrayList()
+  private val alwaysCallbacks: ArrayList<Pair<(R?, Exception?) -> Unit, Boolean>> = ArrayList()
   private val lock: ReentrantLock = ReentrantLock()
-
 
   /**
    * Creates a {@link Future} with an unresolved state.
@@ -52,57 +52,56 @@ public class Future<R> {
   }
 
   private fun onFulfilled() {
-    try {
-      if (lock.tryLock(LOCK_TIMEOUT, TimeUnit.MILLISECONDS)) {
+    lock.withLock {
+      if (ready && result != null) {
         callbacks.forEachIndexed { i, pair ->
           val block = pair.first
-          var submitted = false
           // only submit blocks that have not been executed before
           if (!pair.second) {
-            try {
-              if (ready && result != null) {
-                executor?.execute {
-                  block.invoke(result!!)
-                }
-                submitted = true
-              }
-            } catch (ignore: Exception) {
+            executor?.execute {
+              block.invoke(result!!)
             }
+            val newPair = Pair(block, true)
+            callbacks[i] = newPair
           }
-          val newPair = Pair(block, submitted)
-          callbacks[i] = newPair
         }
       }
-    } finally {
-      lock.unlock()
     }
   }
 
   private fun onRejected() {
-    try {
-      if (lock.tryLock(LOCK_TIMEOUT, TimeUnit.MILLISECONDS)) {
+    lock.withLock {
+      if (ready && error != null) {
         errorBacks.forEachIndexed { i, pair ->
           val block = pair.first
-          var submitted = false
           // only submit blocks that have not been executed before
           if (!pair.second) {
-            try {
-              if (ready && error != null) {
-                executor?.execute {
-                  block.invoke(error!!)
-                }
-                submitted = true
-              }
-            } catch (ignore: Exception) {
-
+            executor?.execute {
+              block.invoke(error!!)
             }
+            val newPair = Pair(block, true)
+            errorBacks[i] = newPair
           }
-          val newPair = Pair(block, submitted)
-          errorBacks[i] = newPair
         }
       }
-    } finally {
-      lock.unlock()
+    }
+  }
+
+  private fun onCompleted() {
+    lock.withLock {
+      if (ready) {
+        alwaysCallbacks.forEachIndexed { i, pair ->
+          val block = pair.first
+          // only submit blocks that have not been executed before
+          if (!pair.second) {
+            executor?.execute {
+              block.invoke(result, error)
+            }
+            val newPair = Pair(block, true)
+            alwaysCallbacks[i] = newPair
+          }
+        }
+      }
     }
   }
 
@@ -112,6 +111,14 @@ public class Future<R> {
   public fun onSuccess(block: (R) -> Unit) {
     callbacks.add(Pair(block, false))
     onFulfilled()
+  }
+
+  /**
+   * Adds a callback that will be executed on either successful / failure of the {@link Future}.
+   */
+  public fun always(block: (R?, Exception?) -> Unit) {
+    alwaysCallbacks.add(Pair(block, false))
+    onCompleted()
   }
 
   /**
@@ -148,6 +155,9 @@ public class Future<R> {
       onFulfilled()
     } else if (error != null) {
       onRejected()
+    }
+    if (result != null || error != null) {
+      onCompleted()
     }
   }
 
@@ -245,9 +255,6 @@ public class Future<R> {
   }
 
   companion object {
-
-    /** The default time out for lock. */
-    private val LOCK_TIMEOUT: Long = 1000
 
     /**
      * Returns a composite Future, based on a variable list of Futures.
