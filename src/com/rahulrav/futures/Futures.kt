@@ -267,12 +267,16 @@ public class Future<R> {
         results.add(result)
         if (results.size == size) {
           // we have all the results
-          joined.resolve(results)
+          executor.execute {
+            joined.resolve(results)
+          }
         }
       }
       val failureCallback = { exception: Exception ->
         // fail fast
-        joined.reject(exception)
+        executor.execute {
+          joined.reject(exception)
+        }
       }
       for (future in f) {
         future.onSuccess(successCallback)
