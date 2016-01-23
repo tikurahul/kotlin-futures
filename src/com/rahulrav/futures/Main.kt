@@ -1,24 +1,26 @@
 package com.rahulrav.futures
 
-import java.util.concurrent.Executors
-
 /**
  * Basic tests on the Future.
  */
 fun main(args: Array<String>) {
-  val executor = Executors.newFixedThreadPool(10)
-  val future = Future.submit(executor, {
+  val future = Future.submit {
     Thread.sleep(1000)
     10
-  })
+  }
 
   val additive: Future<Int> = future.map { it.plus(10) }
-  val multiplicative: Future<Int> = future.flatMap { Future(executor, it * 100) }
-  val joined: Future<List<Int>> = Future.join(executor, additive, multiplicative)
+  val multiplicative: Future<Int> = future.flatMap {
+    Future.submit {
+      it * 100
+    }
+  }
+  val joined: Future<List<Int>> = Future.join(additive, multiplicative)
   joined.always { list, exception ->
     println("Always $list, $exception")
   }
   val result: List<Int>? = joined.await(2000)
   println("The result is $result")
-  executor.shutdown()
+
+  Future.defaultExecutor().shutdown()
 }

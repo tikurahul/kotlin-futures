@@ -1,8 +1,7 @@
 package com.rahulrav.futures
 
-import java.util.ArrayList
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executor
+import java.util.*
+import java.util.concurrent.*
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -14,8 +13,8 @@ public class Future<R> {
   @Volatile var ready: Boolean = false
   @Volatile var result: R? = null
   @Volatile var error: Exception? = null
+  @Volatile private lateinit var executor: Executor
 
-  private var executor: Executor? = null
   private val callbacks: ArrayList<Pair<(R) -> Unit, Boolean>> = ArrayList()
   private val errorBacks: ArrayList<Pair<(Exception) -> Unit, Boolean>> = ArrayList()
   private val alwaysCallbacks: ArrayList<Pair<(R?, Exception?) -> Unit, Boolean>> = ArrayList()
@@ -58,7 +57,7 @@ public class Future<R> {
           val block = pair.first
           // only submit blocks that have not been executed before
           if (!pair.second) {
-            executor?.execute {
+            executor.execute {
               block.invoke(result!!)
             }
             val newPair = Pair(block, true)
@@ -76,7 +75,7 @@ public class Future<R> {
           val block = pair.first
           // only submit blocks that have not been executed before
           if (!pair.second) {
-            executor?.execute {
+            executor.execute {
               block.invoke(error!!)
             }
             val newPair = Pair(block, true)
@@ -94,7 +93,7 @@ public class Future<R> {
           val block = pair.first
           // only submit blocks that have not been executed before
           if (!pair.second) {
-            executor?.execute {
+            executor.execute {
               block.invoke(result, error)
             }
             val newPair = Pair(block, true)
@@ -132,7 +131,7 @@ public class Future<R> {
   /**
    * Marks the successful completion of the {@link Future}.
    */
-  public fun resolve(result: R) = resolve(result, executor!!)
+  public fun resolve(result: R) = resolve(result, executor)
 
   /**
    * Marks the successful completion of the {@link Future} on the given {@link Executor}.
@@ -142,7 +141,7 @@ public class Future<R> {
   /**
    * Marks the result of the {@link Future} as a failure.
    */
-  public fun reject(error: Exception) = reject(error, executor!!)
+  public fun reject(error: Exception) = reject(error, executor)
 
   /**
    * Marks the result of the {@link Future} as a failure on the given {@link Executor}.
@@ -165,7 +164,7 @@ public class Future<R> {
    * Helps with transformations on {@link Future}'s.
    */
   public fun <U> map(block: (R) -> U): Future<U> {
-    return map(executor!!, block)
+    return map(executor, block)
   }
 
   /**
@@ -196,7 +195,7 @@ public class Future<R> {
    * Helps in chaining asynchronous computations with {@link Future}'s.
    */
   public fun <U> flatMap(block: (R) -> Future<U>): Future<U> {
-    return flatMap(executor!!, block)
+    return flatMap(executor, block)
   }
 
   /**
@@ -239,7 +238,7 @@ public class Future<R> {
     }
     // wait for results
     val latch = CountDownLatch(1)
-    val future = Future.timeOut(executor!!, timeout)
+    val future = Future.timeOut(executor, timeout)
     future.onSuccess {
       latch.countDown()
     }
@@ -255,6 +254,23 @@ public class Future<R> {
   }
 
   companion object {
+
+    /**
+     * Returns the default Executor used to execute Futures.
+     */
+    public fun defaultExecutor(): ThreadPoolExecutor {
+      val maxPoolSize = Runtime.getRuntime().availableProcessors() * 3
+      val keepAliveTime = 2L // in seconds
+      val queue = LinkedBlockingQueue<Runnable>()
+      return ThreadPoolExecutor(2, maxPoolSize, keepAliveTime, TimeUnit.SECONDS, queue)
+    }
+
+    /**
+     * Returns a composite Future, based on a variable list of Futures.
+     */
+    public fun <R> join(vararg f: Future<R>): Future<List<R>> {
+      return join(Future.defaultExecutor(), *f)
+    }
 
     /**
      * Returns a composite Future, based on a variable list of Futures.
@@ -283,6 +299,13 @@ public class Future<R> {
         future.onError(failureCallback)
       }
       return joined
+    }
+
+    /**
+     * Submits a {@link Callable} to a {@link Executor} to produce a Future.
+     */
+    public fun <R> submit(block: () -> R): Future<R> {
+      return submit(Future.defaultExecutor(), block)
     }
 
     /**
