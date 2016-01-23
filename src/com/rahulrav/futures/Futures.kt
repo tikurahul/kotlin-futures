@@ -327,6 +327,13 @@ public class Future<R> {
     /**
      * Convenience methods to produce a {@link Future} that resolves after the given timeout.
      */
+    public fun timeOut(timeout: Long): Future<Unit> {
+      return Future.timeOut(Future.defaultExecutor(), timeout)
+    }
+
+    /**
+     * Convenience methods to produce a {@link Future} that resolves after the given timeout.
+     */
     public fun timeOut(executor: Executor, timeout: Long): Future<Unit> {
       val future = Future<Unit>(executor)
       executor.execute {
