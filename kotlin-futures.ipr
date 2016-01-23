@@ -217,7 +217,7 @@
   </component>
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/kotlin-futures.iml" filepath="$PROJECT_DIR$/kotlin-futures.iml" />
+      <module fileurl="file://$PROJECT_DIR$/com.rahulrav.futures.iml" filepath="$PROJECT_DIR$/com.rahulrav.futures.iml" />
     </modules>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" default="false" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">

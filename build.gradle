@@ -1,5 +1,5 @@
-group 'kotlin-futures'
-version '1.0.0'
+group 'com.rahulrav'
+version '1.0.1'
 
 buildscript {
     repositories {
@@ -28,7 +28,7 @@ bintray {
         vcsUrl = 'https://github.com/tikurahul/kotlin-futures.git'
         filesSpec {
             from 'build/libs'
-            into '.'
+            into 'com.rahulrav/kotlin-futures/.'
         }
         version {
             name = '1.0.0'
