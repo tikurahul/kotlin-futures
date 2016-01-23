@@ -10,11 +10,10 @@ Creating a `Future` is really easy.
 ```kotlin
 import com.rahulrav.futures.Future
 
-val executor: Executor = Executors.newFixedThreadPool(10)
-val future: Future<Int> = Future.submit(executor, {
+val future: Future<Int> = Future.submit {
   Thread.sleep(10)
   10
-})
+}
 ```
 
 ### Support for combinators
