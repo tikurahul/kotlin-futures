@@ -42,3 +42,7 @@ val result: Future<Double> = first.flatMap { result ->
 
 To use this library on Android, all you need to do is to provide an implementation
 of the `Executor` that uses a `Looper`.
+
+### Download
+
+[ ![Kotlin Futures 1.0](https://api.bintray.com/packages/rahulrav/kotlin-futures/com.rahulrav.futures/images/download.svg) ](https://bintray.com/rahulrav/kotlin-futures/com.rahulrav.futures/_latestVersion)
