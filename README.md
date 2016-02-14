@@ -41,7 +41,25 @@ val result: Future<Double> = first.flatMap { result ->
 ### Use on Android
 
 To use this library on Android, all you need to do is to provide an implementation
-of the `Executor` that uses a `Looper`.
+of the `Executor` that uses a `Looper`. Here is an example.
+
+```kotlin
+import android.os.Handler
+import android.os.Looper
+import java.util.concurrent.Executor
+
+class DefaultExecutors {
+  companion object {
+    val handler = lazy {
+      Handler(Looper.getMainLooper())
+    }
+    /** Submits things on the UI Thread. */
+    val UiExecutor = Executor({ command ->
+      handler.value.post(command)
+    })
+  }
+}
+```
 
 ### Download
 
