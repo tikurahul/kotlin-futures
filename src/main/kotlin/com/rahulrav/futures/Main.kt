@@ -23,4 +23,8 @@ fun main(args: Array<String>) {
   println("The result is $result")
 
   Future.defaultExecutor().shutdown()
+
+  val awaited = Future.timeOut(15000)
+  val ignored = awaited.await(1000)
+  println("The awaited result is $ignored")
 }

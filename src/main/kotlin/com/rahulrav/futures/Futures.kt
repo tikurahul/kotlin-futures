@@ -233,19 +233,19 @@ class Future<R> {
       if (result != null) {
         return result
       } else {
-        return null;
+        return null
       }
     }
+
     // wait for results
     val latch = CountDownLatch(1)
-    val future = Future.timeOut(executor, timeout)
-    future.onSuccess {
+    this.onSuccess {
       latch.countDown()
     }
-    future.onError {
+    this.onError {
       latch.countDown()
     }
-    latch.await()
+    latch.await(timeout, TimeUnit.MILLISECONDS)
     if (ready && result != null) {
       return result
     } else {
