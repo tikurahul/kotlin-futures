@@ -8,7 +8,7 @@ import kotlin.concurrent.withLock
 /**
  * A really simple implementation of a Future.
  */
-public class Future<R> {
+class Future<R> {
 
   @Volatile var ready: Boolean = false
   @Volatile var result: R? = null
@@ -107,7 +107,7 @@ public class Future<R> {
   /**
    * Adds a callback that will be executed on the successful completion of the {@link Future}.
    */
-  public fun onSuccess(block: (R) -> Unit) {
+  fun onSuccess(block: (R) -> Unit) {
     callbacks.add(Pair(block, false))
     onFulfilled()
   }
@@ -115,7 +115,7 @@ public class Future<R> {
   /**
    * Adds a callback that will be executed on either successful / failure of the {@link Future}.
    */
-  public fun always(block: (R?, Exception?) -> Unit) {
+  fun always(block: (R?, Exception?) -> Unit) {
     alwaysCallbacks.add(Pair(block, false))
     onCompleted()
   }
@@ -123,7 +123,7 @@ public class Future<R> {
   /**
    * Adds an error back which will be executed when the {@link Future} is marked as a failure.
    */
-  public fun onError(block: (Exception) -> Unit) {
+  fun onError(block: (Exception) -> Unit) {
     errorBacks.add(Pair(block, false))
     onRejected()
   }
@@ -131,22 +131,22 @@ public class Future<R> {
   /**
    * Marks the successful completion of the {@link Future}.
    */
-  public fun resolve(result: R) = resolve(result, executor)
+  fun resolve(result: R) = resolve(result, executor)
 
   /**
    * Marks the successful completion of the {@link Future} on the given {@link Executor}.
    */
-  public fun resolve(result: R, executor: Executor) = complete(result, null, executor)
+  fun resolve(result: R, executor: Executor) = complete(result, null, executor)
 
   /**
    * Marks the result of the {@link Future} as a failure.
    */
-  public fun reject(error: Exception) = reject(error, executor)
+  fun reject(error: Exception) = reject(error, executor)
 
   /**
    * Marks the result of the {@link Future} as a failure on the given {@link Executor}.
    */
-  public fun reject(error: Exception, executor: Executor) = complete(null, error, executor)
+  fun reject(error: Exception, executor: Executor) = complete(null, error, executor)
 
   private fun complete(result: R?, error: Exception?, executor: Executor) {
     init(result, error, executor)
@@ -163,14 +163,14 @@ public class Future<R> {
   /**
    * Helps with transformations on {@link Future}'s.
    */
-  public fun <U> map(block: (R) -> U): Future<U> {
+  fun <U> map(block: (R) -> U): Future<U> {
     return map(executor, block)
   }
 
   /**
    * Helps with transformations on {@link Future}'s.
    */
-  public fun <U> map(executor: Executor, block: (R) -> U): Future<U> {
+  fun <U> map(executor: Executor, block: (R) -> U): Future<U> {
     val future: Future<U> = Future(executor)
     this.onSuccess { r: R ->
       try {
@@ -194,14 +194,14 @@ public class Future<R> {
   /**
    * Helps in chaining asynchronous computations with {@link Future}'s.
    */
-  public fun <U> flatMap(block: (R) -> Future<U>): Future<U> {
+  fun <U> flatMap(block: (R) -> Future<U>): Future<U> {
     return flatMap(executor, block)
   }
 
   /**
    * Helps in chaining asynchronous computations with {@link Future}'s.
    */
-  public fun <U> flatMap(executor: Executor, block: (R) -> Future<U>): Future<U> {
+  fun <U> flatMap(executor: Executor, block: (R) -> Future<U>): Future<U> {
     val future: Future<U> = Future(executor)
     this.onSuccess { r ->
       try {
@@ -228,7 +228,7 @@ public class Future<R> {
   /**
    * Waits to the future to resolve, and returns the result if available.
    */
-  public fun await(timeout: Long): R? {
+  fun await(timeout: Long): R? {
     if (ready) {
       if (result != null) {
         return result
@@ -258,24 +258,24 @@ public class Future<R> {
     /**
      * Returns the default Executor used to execute Futures.
      */
-    public fun defaultExecutor(): ThreadPoolExecutor {
+    fun defaultExecutor(): ThreadPoolExecutor {
       val maxPoolSize = Runtime.getRuntime().availableProcessors() * 3
       val keepAliveTime = 2L // in seconds
       val queue = LinkedBlockingQueue<Runnable>()
-      return ThreadPoolExecutor(2, maxPoolSize, keepAliveTime, TimeUnit.SECONDS, queue)
+      return ThreadPoolExecutor(0, maxPoolSize, keepAliveTime, TimeUnit.SECONDS, queue)
     }
 
     /**
      * Returns a composite Future, based on a variable list of Futures.
      */
-    public fun <R> join(vararg f: Future<R>): Future<List<R>> {
+    fun <R> join(vararg f: Future<R>): Future<List<R>> {
       return join(Future.defaultExecutor(), *f)
     }
 
     /**
      * Returns a composite Future, based on a variable list of Futures.
      */
-    public fun <R> join(executor: Executor, vararg f: Future<R>): Future<List<R>> {
+    fun <R> join(executor: Executor, vararg f: Future<R>): Future<List<R>> {
       var joined = Future<List<R>>(executor)
       var results = ArrayList<R>(f.size)
       val size = f.size
@@ -304,14 +304,14 @@ public class Future<R> {
     /**
      * Submits a {@link Callable} to a {@link Executor} to produce a Future.
      */
-    public fun <R> submit(block: () -> R): Future<R> {
+    fun <R> submit(block: () -> R): Future<R> {
       return submit(Future.defaultExecutor(), block)
     }
 
     /**
      * Submits a {@link Callable} to a {@link Executor} to produce a Future.
      */
-    public fun <R> submit(executor: Executor, block: () -> R): Future<R> {
+    fun <R> submit(executor: Executor, block: () -> R): Future<R> {
       val future = Future<R>(executor)
       executor.execute {
         try {
@@ -327,14 +327,14 @@ public class Future<R> {
     /**
      * Convenience methods to produce a {@link Future} that resolves after the given timeout.
      */
-    public fun timeOut(timeout: Long): Future<Unit> {
+    fun timeOut(timeout: Long): Future<Unit> {
       return Future.timeOut(Future.defaultExecutor(), timeout)
     }
 
     /**
      * Convenience methods to produce a {@link Future} that resolves after the given timeout.
      */
-    public fun timeOut(executor: Executor, timeout: Long): Future<Unit> {
+    fun timeOut(executor: Executor, timeout: Long): Future<Unit> {
       val future = Future<Unit>(executor)
       executor.execute {
         try {

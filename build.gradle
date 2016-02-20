@@ -1,5 +1,5 @@
 group 'com.rahulrav'
-version '1.0.1'
+version '1.0.2'
 
 buildscript {
     repositories {
@@ -41,7 +41,7 @@ dependencies {
 }
 
 buildscript {
-    ext.kotlin_version = '1.0.0-beta-4584'
+    ext.kotlin_version = '1.0.0'
     repositories {
         mavenCentral()
     }
