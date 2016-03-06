@@ -1,5 +1,5 @@
 group 'com.rahulrav'
-version '1.0.3'
+version '1.0.4'
 
 buildscript {
     repositories {
@@ -24,16 +24,15 @@ bintray {
     pkg {
         repo = 'kotlin-futures'
         name = 'com.rahulrav.futures'
+        desc = 'Futures for Kotlin'
         licenses = ['MIT']
         vcsUrl = 'https://github.com/tikurahul/kotlin-futures.git'
-        filesSpec {
-            from 'build/libs'
-            into 'com.rahulrav/kotlin-futures/.'
-        }
         version {
             name = '1.0.0'
+            desc = "Futures for Kotlin"
         }
     }
+    configurations = ["archives"]
 }
 
 dependencies {
