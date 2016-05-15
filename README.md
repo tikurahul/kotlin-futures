@@ -60,6 +60,23 @@ class DefaultExecutors {
   }
 }
 ```
+### Java Compatiblity
+
+When using the Kotlin Futures library from Java, you need to be careful about returing `null` values.
+This is because, the library implementation in `Kotlin` prevents `null` values from being used while `Java` does not.
+
+<b>Warning: If you attempt to resolve a `Future` with a `null` value, it will never get resolved.</b>
+
+You should wrap your `Java` type with something like:
+
+```kotlin
+sealed class Optional<T> {
+  class Some<T>(val contents: T): Optional<T>()
+  object None
+}
+```
+
+If you are using JDK 8, you should use the [Optional](https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html) type.
 
 ### Download
 

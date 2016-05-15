@@ -18,6 +18,10 @@
         <processorPath useClasspath="true" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="com.rahulrav.futures_main" target="1.8" />
+      <module name="com.rahulrav.futures_test" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
   <component name="CopyrightManager" default="">
     <LanguageOptions name="JAVA">
@@ -45,11 +49,6 @@
           </set>
         </option>
         <option name="useAutoImport" value="true" />
-        <option name="myModules">
-          <set>
-            <option value="$PROJECT_DIR$" />
-          </set>
-        </option>
       </GradleProjectSettings>
     </option>
   </component>
@@ -220,10 +219,12 @@
   </component>
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/com.rahulrav.futures.iml" filepath="$PROJECT_DIR$/com.rahulrav.futures.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.rahulrav.futures.iml" filepath="$PROJECT_DIR$/.idea/modules/com.rahulrav.futures.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.rahulrav.futures_main.iml" filepath="$PROJECT_DIR$/.idea/modules/com.rahulrav.futures_main.iml" group="com.rahulrav.futures" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.rahulrav.futures_test.iml" filepath="$PROJECT_DIR$/.idea/modules/com.rahulrav.futures_test.iml" group="com.rahulrav.futures" />
     </modules>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" default="false" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="false" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="ScalaSbtSettings">
@@ -234,22 +235,22 @@
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
   </component>
   <component name="libraryTable">
-    <library name="Gradle: org.jetbrains.kotlin:kotlin-runtime:1.0.0">
+    <library name="Gradle: org.jetbrains.kotlin:kotlin-runtime:1.0.2">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-runtime/1.0.0/8739b3cd3bf98584cf2d1cabf59b55dbd5f7349d/kotlin-runtime-1.0.0.jar!/" />
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-runtime/1.0.2/8ec2d49a780ddba5e9b6860a72969e4d5bbc0c55/kotlin-runtime-1.0.2.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-runtime/1.0.0/d0c738e20f1658e1705ce166caa1768267bf4262/kotlin-runtime-1.0.0-sources.jar!/" />
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-runtime/1.0.2/7d8382a1dcf97e4481a6d267bbd26ad9d4e60b9e/kotlin-runtime-1.0.2-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.0.0">
+    <library name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.0.2">
       <CLASSES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.0.0/2db5ac6eb2746708e77e4c439625f9331c25e766/kotlin-stdlib-1.0.0.jar!/" />
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.0.2/22063f19bfd8e50f21fc310842a91ff5b31bb272/kotlin-stdlib-1.0.2.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES>
-        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.0.0/3a8a73d14b5fdda2425b40b440bb0ce71cb627fc/kotlin-stdlib-1.0.0-sources.jar!/" />
+        <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.0.2/81502b079b2472f09df93ab0f2189de0d13f6cb4/kotlin-stdlib-1.0.2-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="KotlinJavaRuntime">
