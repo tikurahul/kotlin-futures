@@ -5,8 +5,10 @@ Has very minimal dependencies, so you can use it on Android.
 
 ### Getting Started
 
-####Acquiring using Gradle
+#### Acquiring using Gradle
+
 Add my bintray repo as a maven repository:
+
 ```gradle
 repositories {
   maven {
@@ -15,13 +17,14 @@ repositories {
 }
 ```
 and then add the library as a dependency:
+
 ```gradle
 dependencies {
   compile "com.rahulrav:com.rahulrav.futures:1.0.4"
 }
 ```
 
-####Creating
+#### Creating Futures
 
 Creating a `Future` is really easy.
 
