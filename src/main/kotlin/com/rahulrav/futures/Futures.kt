@@ -249,7 +249,7 @@ class Future<R> {
     if (ready && result != null) {
       return result
     } else {
-      return null;
+      return null
     }
   }
 
@@ -276,8 +276,8 @@ class Future<R> {
      * Returns a composite Future, based on a variable list of Futures.
      */
     fun <R> join(executor: Executor, vararg f: Future<R>): Future<List<R>> {
-      var joined = Future<List<R>>(executor)
-      var results = ArrayList<R>(f.size)
+      val joined = Future<List<R>>(executor)
+      val results = ArrayList<R>(f.size)
       val size = f.size
       val successCallback = { result: R ->
         results.add(result)
