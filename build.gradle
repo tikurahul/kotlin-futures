@@ -1,5 +1,5 @@
 group 'com.rahulrav'
-version '1.0.6'
+version '1.0.7'
 
 buildscript {
     repositories {
@@ -28,7 +28,7 @@ bintray {
         licenses = ['MIT']
         vcsUrl = 'https://github.com/tikurahul/kotlin-futures.git'
         version {
-            name = '1.0.0'
+            name = '1.0.1'
             desc = "Futures for Kotlin"
         }
     }
@@ -40,7 +40,7 @@ dependencies {
 }
 
 buildscript {
-    ext.kotlin_version = '1.0.3'
+    ext.kotlin_version = '1.0.4'
     repositories {
         mavenCentral()
     }

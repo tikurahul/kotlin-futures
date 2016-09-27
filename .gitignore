@@ -42,3 +42,12 @@ build/
 # Gradle:
 .idea/gradle.xml
 .idea/libraries
+.idea/.name
+.idea/compiler.xml
+.idea/copyright/
+.idea/encodings.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/modules/com.rahulrav.futures_main.iml
+.idea/modules/com.rahulrav.futures_test.iml
+.idea/sbt.xml
