@@ -20,7 +20,7 @@ and then add the library as a dependency:
 
 ```gradle
 dependencies {
-  compile "com.rahulrav:com.rahulrav.futures:1.0.7"
+  compile "com.rahulrav:com.rahulrav.futures:1.1.0"
 }
 ```
 
@@ -118,4 +118,4 @@ launch(CommonPool) {
 
 ### Download
 
-[ ![Kotlin Futures 1.0](https://api.bintray.com/packages/rahulrav/kotlin-futures/com.rahulrav.futures/images/download.svg) ](https://bintray.com/rahulrav/kotlin-futures/com.rahulrav.futures/_latestVersion)
+ [ ![Download](https://api.bintray.com/packages/rahulrav/kotlin-futures/com.rahulrav.futures/images/download.svg) ](https://bintray.com/rahulrav/kotlin-futures/com.rahulrav.futures/_latestVersion)
