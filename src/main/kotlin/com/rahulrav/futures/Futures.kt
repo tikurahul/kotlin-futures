@@ -255,10 +255,16 @@ class Future<R> {
 
   companion object {
 
+    private val defaultExecutor: ThreadPoolExecutor
+
+    init {
+      defaultExecutor = defaultExecutor()
+    }
+
     /**
      * Returns the default Executor used to execute Futures.
      */
-    fun defaultExecutor(): ThreadPoolExecutor {
+    private fun defaultExecutor(): ThreadPoolExecutor {
       val maxPoolSize = Runtime.getRuntime().availableProcessors() * 3
       val keepAliveTime = 2L // in seconds
       val queue = LinkedBlockingQueue<Runnable>()
@@ -269,7 +275,7 @@ class Future<R> {
      * Returns a composite Future, based on a variable list of Futures.
      */
     fun <R> join(vararg f: Future<R>): Future<List<R>> {
-      return join(Future.defaultExecutor(), *f)
+      return join(defaultExecutor, *f)
     }
 
     /**
@@ -305,7 +311,7 @@ class Future<R> {
      * Submits a {@link Callable} to a {@link Executor} to produce a Future.
      */
     fun <R> submit(block: () -> R): Future<R> {
-      return submit(Future.defaultExecutor(), block)
+      return submit(defaultExecutor, block)
     }
 
     /**
@@ -328,7 +334,7 @@ class Future<R> {
      * Convenience methods to produce a {@link Future} that resolves after the given timeout.
      */
     fun timeOut(timeout: Long): Future<Unit> {
-      return Future.timeOut(Future.defaultExecutor(), timeout)
+      return Future.timeOut(defaultExecutor, timeout)
     }
 
     /**
