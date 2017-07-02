@@ -99,6 +99,23 @@ sealed class Optional<T> {
 
 If you are using JDK 8, you should use the [Optional](https://docs.oracle.com/javase/8/docs/api/java/util/Optional.html) type.
 
+### Support for Coroutines
+
+This library now has experimental support for [Kotlin Coroutines](https://kotlinlang.org/docs/reference/coroutines.html#generators-api-in-kotlincoroutines).
+Here is an example on how you can use coroutines.
+
+
+```kotlin
+import com.rahulrav.futures.experimental.CoroutineSupport.await
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.launch
+
+launch(CommonPool) {
+  val result = future.await()
+  println("Coroutine support: The result is $result")
+}
+```
+
 ### Download
 
 [ ![Kotlin Futures 1.0](https://api.bintray.com/packages/rahulrav/kotlin-futures/com.rahulrav.futures/images/download.svg) ](https://bintray.com/rahulrav/kotlin-futures/com.rahulrav.futures/_latestVersion)
