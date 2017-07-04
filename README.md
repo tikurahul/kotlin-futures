@@ -110,6 +110,11 @@ import com.rahulrav.futures.experimental.CoroutineSupport.await
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.launch
 
+val future = Future.submit {
+  Thread.sleep(100)
+  10
+}
+ 
 launch(CommonPool) {
   val result = future.await()
   println("Coroutine support: The result is $result")
