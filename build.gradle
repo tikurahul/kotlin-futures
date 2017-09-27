@@ -48,7 +48,7 @@ bintray {
         licenses = ['MIT']
         vcsUrl = 'https://github.com/tikurahul/kotlin-futures.git'
         version {
-            name = '1.1.0'
+            name = '1.1.1'
             desc = "Futures for Kotlin"
         }
     }

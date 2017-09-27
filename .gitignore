@@ -51,3 +51,8 @@ build/
 .idea/modules/com.rahulrav.futures_main.iml
 .idea/modules/com.rahulrav.futures_test.iml
 .idea/sbt.xml
+.idea/inspectionProfiles/
+annotations/
+src/main/java/
+src/main/resources/
+src/test/
