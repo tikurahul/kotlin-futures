@@ -2,23 +2,26 @@ package com.rahulrav.futures
 
 import java.util.*
 import java.util.concurrent.*
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.write
 
 /**
  * A really simple implementation of a Future.
  */
 class Future<R> {
 
-  @Volatile var ready: Boolean = false
-  @Volatile var result: R? = null
-  @Volatile var error: Exception? = null
+  @Volatile
+  var ready: Boolean = false
+  @Volatile
+  var result: R? = null
+  @Volatile
+  var error: Exception? = null
   @Volatile private lateinit var executor: Executor
 
   private val callbacks: ArrayList<Pair<(R) -> Unit, Boolean>> = ArrayList()
   private val errorBacks: ArrayList<Pair<(Exception) -> Unit, Boolean>> = ArrayList()
   private val alwaysCallbacks: ArrayList<Pair<(R?, Exception?) -> Unit, Boolean>> = ArrayList()
-  private val lock: ReentrantLock = ReentrantLock()
+  private val lock: ReentrantReadWriteLock = ReentrantReadWriteLock()
 
   /**
    * Creates a {@link Future} with an unresolved state.
@@ -51,7 +54,7 @@ class Future<R> {
   }
 
   private fun onFulfilled() {
-    lock.withLock {
+    lock.write {
       if (ready && result != null) {
         callbacks.forEachIndexed { i, pair ->
           val block = pair.first
@@ -69,7 +72,7 @@ class Future<R> {
   }
 
   private fun onRejected() {
-    lock.withLock {
+    lock.write {
       if (ready && error != null) {
         errorBacks.forEachIndexed { i, pair ->
           val block = pair.first
@@ -87,7 +90,7 @@ class Future<R> {
   }
 
   private fun onCompleted() {
-    lock.withLock {
+    lock.write {
       if (ready) {
         alwaysCallbacks.forEachIndexed { i, pair ->
           val block = pair.first
