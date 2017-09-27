@@ -18,10 +18,9 @@ class Future<R> {
   var error: Exception? = null
   @Volatile private lateinit var executor: Executor
 
-  private val callbacks: ArrayList<Pair<(R) -> Unit, Boolean>> = ArrayList()
-  private val errorBacks: ArrayList<Pair<(Exception) -> Unit, Boolean>> = ArrayList()
-  private val alwaysCallbacks: ArrayList<Pair<(R?, Exception?) -> Unit, Boolean>> = ArrayList()
-  private val lock: ReentrantReadWriteLock = ReentrantReadWriteLock()
+  private val callbacks: CopyOnWriteArrayList<Pair<(R) -> Unit, Boolean>> = CopyOnWriteArrayList()
+  private val errorBacks: CopyOnWriteArrayList<Pair<(Exception) -> Unit, Boolean>> = CopyOnWriteArrayList()
+  private val alwaysCallbacks: CopyOnWriteArrayList<Pair<(R?, Exception?) -> Unit, Boolean>> = CopyOnWriteArrayList()
 
   /**
    * Creates a {@link Future} with an unresolved state.
@@ -54,54 +53,49 @@ class Future<R> {
   }
 
   private fun onFulfilled() {
-    lock.write {
-      if (ready && result != null) {
-        callbacks.forEachIndexed { i, pair ->
-          val block = pair.first
-          // only submit blocks that have not been executed before
-          if (!pair.second) {
-            executor.execute {
-              block.invoke(result!!)
-            }
-            val newPair = Pair(block, true)
-            callbacks[i] = newPair
+    if (ready && result != null) {
+      callbacks.forEachIndexed { i, pair ->
+        val block = pair.first
+        // only submit blocks that have not been executed before
+        if (!pair.second) {
+          executor.execute {
+            block.invoke(result!!)
           }
+          val newPair = Pair(block, true)
+          callbacks[i] = newPair
         }
       }
     }
+
   }
 
   private fun onRejected() {
-    lock.write {
-      if (ready && error != null) {
-        errorBacks.forEachIndexed { i, pair ->
-          val block = pair.first
-          // only submit blocks that have not been executed before
-          if (!pair.second) {
-            executor.execute {
-              block.invoke(error!!)
-            }
-            val newPair = Pair(block, true)
-            errorBacks[i] = newPair
+    if (ready && error != null) {
+      errorBacks.forEachIndexed { i, pair ->
+        val block = pair.first
+        // only submit blocks that have not been executed before
+        if (!pair.second) {
+          executor.execute {
+            block.invoke(error!!)
           }
+          val newPair = Pair(block, true)
+          errorBacks[i] = newPair
         }
       }
     }
   }
 
   private fun onCompleted() {
-    lock.write {
-      if (ready) {
-        alwaysCallbacks.forEachIndexed { i, pair ->
-          val block = pair.first
-          // only submit blocks that have not been executed before
-          if (!pair.second) {
-            executor.execute {
-              block.invoke(result, error)
-            }
-            val newPair = Pair(block, true)
-            alwaysCallbacks[i] = newPair
+    if (ready) {
+      alwaysCallbacks.forEachIndexed { i, pair ->
+        val block = pair.first
+        // only submit blocks that have not been executed before
+        if (!pair.second) {
+          executor.execute {
+            block.invoke(result, error)
           }
+          val newPair = Pair(block, true)
+          alwaysCallbacks[i] = newPair
         }
       }
     }
