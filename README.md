@@ -32,7 +32,8 @@ Creating a `Future` is really easy.
 import com.rahulrav.futures.Future
 
 val future: Future<Int> = Future.submit {
-  Thread.sleep(10)
+  // fake some long running computation
+  Thread.sleep(1000)
   10
 }
 ```
@@ -44,7 +45,7 @@ This future supports combinators like `map` and `flatMap` so you can transform a
 ```kotlin
 val response: Future<HttpResponse> = someLongRunningComputation()
 val headers: Future<List<Pair<String, String>>> = response.map { result ->
-  return result.headers
+  result.headers
 }
 ```
 
@@ -55,14 +56,14 @@ val first: Future<Int> = someLongRunningComputation()
 val result: Future<Double> = first.flatMap { result ->
   val second: Future<Double> = anotherLongRunningComputation(result)
   // we are returning a Future<Double> instead of a Future<Future<Double>>
-  return second
+  second
 }
 ```
 
 ### Use on Android
 
-To use this library on Android, all you need to do is to provide an implementation
-of the `Executor` that uses a `Looper`. Here is an example.
+Futures work on Android. However, one important thing to note is there might be operations that you might want to run on the UI thread instead of the default executor. In such cases, all you need to do is to provide an implementation
+of the `Executor` that uses a `Looper`. Here is an example of how you could do that:
 
 ```kotlin
 import android.os.Handler
@@ -81,14 +82,29 @@ class DefaultExecutors {
   }
 }
 ```
-### Java Compatiblity
 
-When using the Kotlin Futures library from Java, you need to be careful about returing `null` values.
-This is because, the library implementation in `Kotlin` prevents `null` values from being used while `Java` does not.
+When you want to execute a sub-task on the UI thread (using the executor defined above), you can then do something like:
+
+```kotlin
+val future: Future<Int> = Future.submit {
+  // fake some long running computation
+  Thread.sleep(1000)
+  10
+}
+
+future.map(DefaultExecutors.UiExecutor) {
+  // this sub-task now runs on the main looper
+}
+```
+
+### Important Note
+
+When using the Kotlin Futures library you need to be careful about returing `null` or optional values.
+This is because, the implementation of the library expects the caller to provide non-null values.
 
 <b>Warning: If you attempt to resolve a `Future` with a `null` value, it will never get resolved.</b>
 
-You should wrap your `Java` type with something like:
+You should wrap your optional type with something like:
 
 ```kotlin
 sealed class Optional<T> {
