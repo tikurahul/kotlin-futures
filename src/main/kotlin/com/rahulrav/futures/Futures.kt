@@ -2,8 +2,6 @@ package com.rahulrav.futures
 
 import java.util.*
 import java.util.concurrent.*
-import java.util.concurrent.locks.ReentrantReadWriteLock
-import kotlin.concurrent.write
 
 /**
  * A really simple implementation of a Future.
@@ -36,6 +34,17 @@ class Future<R> {
    * Creates a {@link Future} with a failed resolved state.
    */
   constructor(executor: Executor, error: Exception) : this(null, error, executor)
+
+  /**
+   * Creates a {@link Future} with a successful resolved state.
+   */
+  constructor(result: R) : this(result, null, defaultExecutor())
+
+  /**
+   * Creates a {@link Future} with a failed resolved state.
+   */
+  constructor(exception: Exception) : this(null, exception, defaultExecutor())
+
 
   private constructor(result: R?, error: Exception?, executor: Executor) {
     init(result, error, executor)
