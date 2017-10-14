@@ -20,7 +20,7 @@ and then add the library as a dependency:
 
 ```gradle
 dependencies {
-  compile "com.rahulrav:com.rahulrav.futures:1.1.3"
+  compile "com.rahulrav:com.rahulrav.futures:1.1.5"
 }
 ```
 
