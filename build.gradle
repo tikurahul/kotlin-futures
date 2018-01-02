@@ -1,12 +1,12 @@
 group 'com.rahulrav'
-version '1.1.5'
+version '1.1.6'
 
 task wrapper(type: Wrapper) {
     gradleVersion = "4.1"
 }
 
 buildscript {
-    ext.kotlin_version = '1.1.51'
+    ext.kotlin_version = '1.2.10'
     repositories {
         jcenter()
         mavenCentral()
@@ -52,7 +52,7 @@ bintray {
         licenses = ['MIT']
         vcsUrl = 'https://github.com/tikurahul/kotlin-futures.git'
         version {
-            name = '1.1.5'
+            name = '1.1.6'
             desc = "Futures for Kotlin"
         }
     }
