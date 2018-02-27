@@ -23,6 +23,11 @@ class Future<R> {
   /**
    * Creates a {@link Future} with an unresolved state.
    */
+  constructor(): this(null, null, defaultExecutor)
+
+  /**
+   * Creates a {@link Future} with an unresolved state.
+   */
   constructor(executor: Executor) : this(null, null, executor)
 
   /**

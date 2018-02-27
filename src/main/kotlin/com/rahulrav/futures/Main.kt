@@ -7,6 +7,7 @@ import kotlinx.coroutines.experimental.launch
 
 fun basicUses() {
   println("Testing basic usage of Futures.")
+
   val future = Future.submit {
     Thread.sleep(1000)
     10

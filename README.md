@@ -20,7 +20,7 @@ and then add the library as a dependency:
 
 ```gradle
 dependencies {
-  compile "com.rahulrav:com.rahulrav.futures:1.1.6"
+  compile "com.rahulrav:com.rahulrav.futures:1.1.7"
 }
 ```
 
@@ -83,7 +83,6 @@ class DefaultExecutors {
 }
 ```
 
-When you want to execute a sub-task on the UI thread (using the executor defined above), you can then do something like:
 
 ```kotlin
 val future: Future<Int> = Future.submit {
